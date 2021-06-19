@@ -10,6 +10,7 @@
         android:id="@+id/swipeView"
         android:layout_width="171dp"
         android:layout_height="32dp"
+        android:alpha="0.2"
         android:background="@color/teal_200"
         android:clickable="true"
         android:focusable="true"

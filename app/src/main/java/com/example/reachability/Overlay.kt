@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory
 import android.graphics.PixelFormat
 import android.os.Build
 import android.os.Environment
+import android.os.Parcel
 import android.text.format.DateFormat
 import android.util.Log
 import android.view.*
@@ -14,10 +15,7 @@ import android.view.accessibility.AccessibilityEvent
 import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import java.io.File
-import java.io.FileNotFoundException
-import java.io.FileOutputStream
-import java.io.IOException
+import java.io.*
 import java.util.*
 
 
@@ -73,7 +71,7 @@ class Overlay : AccessibilityService() {
 //                return true
 //            }
 
-            @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+            @RequiresApi(Build.VERSION_CODES.R)
             override fun onSwipeBottom(): Boolean {
                 Toast.makeText(this@Overlay, "bottom", Toast.LENGTH_SHORT).show()
                 Log.d(null, "down")
@@ -92,7 +90,7 @@ class Overlay : AccessibilityService() {
 
     }
 
-    @RequiresApi(Build.VERSION_CODES.P)
+    @RequiresApi(Build.VERSION_CODES.R)
     fun screenshot(){
 //        Log.d(null, windows.toString())
         var id = -1
@@ -111,7 +109,17 @@ class Overlay : AccessibilityService() {
         val callback = object : TakeScreenshotCallback{
             override fun onSuccess(screenshot: ScreenshotResult) {
                 var buffer = screenshot.hardwareBuffer
-                Log.d(null, "${buffer.format} ${buffer.height} ${buffer.width}")
+                Log.d(null, "${buffer.format} ${buffer.height} ${buffer.width} screenshot")
+                Log.d(null, "Frame buffer ${buffer.describeContents()}")
+                var parcel:Parcel? = null
+                buffer.writeToParcel(parcel, 0)
+
+                var bitmap = Bitmap.CREATOR.createFromParcel(parcel)
+                var baos = ByteArrayOutputStream()
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos)
+                val newPng = baos.toByteArray()
+                ScreenshotService().processImage(newPng)
+
             }
 
             override fun onFailure(errorCode: Int) {
